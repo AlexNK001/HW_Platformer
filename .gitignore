@@ -70,3 +70,22 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+*.meta
+.vsconfig
+*.controller
+*.atlas
+*.png
+*.anim
+*.spine
+*.json
+*.unity
+*.lighting
+Assets/Black Knight/ReadMe.txt
+*.pdf
+Assets/Wizard - 2D Character/Demo/WizDemo1.cs
+Assets/Wizard - 2D Character/Demo/SimplePlayerController.cs
+*.psb
+*.asset
+*.config
+*.txt
+*.prefab
