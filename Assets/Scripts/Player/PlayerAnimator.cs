@@ -1,36 +1,112 @@
 ﻿using UnityEngine;
 
-public class PlayerAnimator : MonoBehaviour
+namespace Player
 {
-    [SerializeField] private UserInput _userInput;
-    [SerializeField] private PlayerPhysic _physicCharacter;
-    [SerializeField] private Animator _animator;
-
-    private void Start()
+    internal class PlayerAnimator : MonoBehaviour
     {
-        _userInput.Moved += Move;
-        _userInput.AttackedEvent += Attack;
-    }
+        [SerializeField] private Animator _animator;
 
-    private void Update()
-    {
-        _animator.SetBool(AnimationCommand.IsJump, _physicCharacter.IsGround == false);
-    }
+        private UserInput _userInput;
+        private PlayerPhysic _playerPhysic;
 
-    private void OnDisable()
-    {
-        _userInput.Moved -= Move;
-        _userInput.AttackedEvent -= Attack;
-    }
+        private Vector3 _scaleRigth;
+        private Vector3 _scaleLeft;
+        private int _currenVerticaltAnimation;
+        private int _currentMoveAnimation;
+        private Heart _heart;
 
-    private void Move(float direction)
-    {
-        bool isRun = direction > 0 || direction < 0;
-        _animator.SetBool(AnimationCommand.IsWalk, isRun && _physicCharacter.IsGround);
-    }
+        private void OnDestroy()
+        {
+            _userInput.Moved -= Move;
+            _userInput.Moved -= ChangeDirectionLook;
+            _userInput.Attacked -= Attack;
+            _userInput.Runed -= ChangeMoveAnimation;
 
-    private void Attack(bool isAttack)
-    {
-        _animator.SetBool(AnimationCommand.Attack, isAttack);
+            _playerPhysic.VerticalDirectionChanged -= ChooseVertivalAnimation;
+        }
+
+        internal void Initilization(UserInput userInput, PlayerPhysic playerPhysic, Heart heart)
+        {
+            _userInput = userInput;
+
+            _scaleRigth = transform.localScale;
+            _scaleLeft = new Vector3
+            (
+                transform.localScale.x * -1,
+                transform.localScale.y,
+                transform.localScale.z
+            );
+
+            _userInput.Moved += Move;
+            _userInput.Moved += ChangeDirectionLook;
+            _userInput.Attacked += Attack;
+            _userInput.Runed += ChangeMoveAnimation;
+            _currentMoveAnimation = AnimationCommand.IsWalk;
+
+            _playerPhysic = playerPhysic;
+            _playerPhysic.VerticalDirectionChanged += ChooseVertivalAnimation;
+
+            _heart = heart;
+            _heart.HealthChanged += ChangeHairColor;
+        }
+
+        private void ChangeMoveAnimation(bool isRun)
+        {
+            int animation = isRun ? AnimationCommand.IsRun : AnimationCommand.IsWalk;
+
+            if (_currentMoveAnimation == animation == false)
+            {
+                _animator.SetBool(_currentMoveAnimation, false);
+                _currentMoveAnimation = animation;
+            }
+        }
+
+        private void ChangeHairColor(float currentHealtValue)
+        {
+            _animator.SetTrigger(AnimationCommand.ChangeColor);
+        }
+
+        private void ChangeDirectionLook(float horizontalAxisValue)
+        {
+            if (horizontalAxisValue > 0f)
+            {
+                transform.localScale = _scaleRigth;
+            }
+            else if (horizontalAxisValue < 0f)
+            {
+                transform.localScale = _scaleLeft;
+            }
+        }
+
+        private void Move(float horizontalAxisValue)
+        {
+            bool isMove = horizontalAxisValue > 0 || horizontalAxisValue < 0;
+            _animator.SetBool(_currentMoveAnimation, isMove && _playerPhysic.IsGround);
+        }
+
+        private void Attack()
+        {
+            _animator.SetTrigger(AnimationCommand.Attack);
+        }
+
+        private void ChooseVertivalAnimation(Vector2 verticalDirection)
+        {
+            _animator.SetBool(_currenVerticaltAnimation, false);
+
+            if (verticalDirection == Vector2.up)
+            {
+                _currenVerticaltAnimation = AnimationCommand.IsJump;
+            }
+            else if (verticalDirection == Vector2.down)
+            {
+                _currenVerticaltAnimation = AnimationCommand.Fall;
+            }
+            else
+            {
+                return;
+            }
+
+            _animator.SetBool(_currenVerticaltAnimation, true);
+        }
     }
 }

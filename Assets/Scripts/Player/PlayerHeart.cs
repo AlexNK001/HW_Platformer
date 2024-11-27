@@ -1,7 +1,27 @@
-﻿public class PlayerHeart : Heart
+﻿using UnityEngine;
+
+namespace Player
 {
-    public void DrinkHealingPotion(HealPotion potion)
+    public class PlayerHeart : Heart
     {
-        _health += potion.HealPower;
+        private PlayerPhysic _playerPhysic;
+
+        public void Heal(Item item)
+        {
+            if (item is HealPotion potion)
+            {
+                CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + potion.HealPower);
+                HealthChanged.Invoke(CurrentHealth);
+                potion.Pickup();
+            }
+        }
+
+        internal void Initilization(PlayerPhysic playerPhysic, float maxHealt, float currentHealt)
+        {
+            base.Initilization(maxHealt, currentHealt);
+
+            _playerPhysic = playerPhysic;
+            _playerPhysic.Raised += Heal;
+        }
     }
 }

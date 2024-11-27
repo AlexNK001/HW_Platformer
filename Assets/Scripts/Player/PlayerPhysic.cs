@@ -1,49 +1,100 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections;
+using UnityEngine;
 
-public class PlayerPhysic : MonoBehaviour
+namespace Player
 {
-    [SerializeField] private Bug _bug;
-    [SerializeField] private PlayerHeart _heart;
-    [SerializeField] private ContactFilter2D _filter;
-    [SerializeField] private float _raycastDistanse = 0.2f;
-
-    private RaycastHit2D[] _hits;
-
-    public bool IsGround { get; private set; } = true;
-
-    private void Start()
+    internal class PlayerPhysic : MonoBehaviour
     {
-        _hits = new RaycastHit2D[10];
-    }
+        [SerializeField] private ContactFilter2D _filter;
+        [SerializeField, Min(0f)] private float _raycastDistanse = 0.2f;
+        [SerializeField] private CapsuleCollider2D _mainCollider;
 
-    private void Update()
-    {
-        int hitCount = Physics2D.Raycast(
-            transform.position,
-            Vector2.down,
-            _filter,
-            _hits,
-            _raycastDistanse);
+        private RaycastHit2D[] _hits;
+        private float _lastHigth;
+        private Vector2 _currentVerticalDirection;
+        private WaitForSeconds _delayDisablePlatform;
 
-        IsGround = hitCount > 0;
-    }
+        internal bool IsGround { get; private set; } = true;
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.TryGetComponent(out Item item))
+        internal event Action<Item> Raised;
+        internal event Action<Vector2> VerticalDirectionChanged;
+
+        private void Start()
         {
-            switch (item)
-            {
-                case Coin coin:
-                    _bug.AddCoin(coin);
-                    break;
+            _hits = new RaycastHit2D[10];
+            _lastHigth = transform.position.y;
+            _currentVerticalDirection = Vector2.zero;
 
-                case HealPotion potion:
-                    _heart.DrinkHealingPotion(potion);
-                    break;
+            _delayDisablePlatform = new WaitForSeconds(Mathf.Sqrt(_mainCollider.size.y * 2 / Mathf.Abs(Physics.gravity.y)));
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down);
+
+                if (hit.transform.TryGetComponent(out PlatformEffector2D platform))
+                {
+                    StartCoroutine(TemporarilyDisablePlatform(platform));
+                }
+            }
+        }
+
+        private IEnumerator TemporarilyDisablePlatform(PlatformEffector2D platform)
+        {
+            float currentRotationalOffset = platform.rotationalOffset;
+            platform.rotationalOffset += 180;
+            yield return _delayDisablePlatform;
+            platform.rotationalOffset = currentRotationalOffset;
+        }
+
+        private void FixedUpdate()
+        {
+            if (_currentVerticalDirection != Vector2.up)
+                IsGround = HaveGround();
+
+            Vector2 direction = GetVerticalDirection();
+
+            if (direction != _currentVerticalDirection)
+            {
+                VerticalDirectionChanged.Invoke(direction);
+                _currentVerticalDirection = direction;
+            }
+        }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (collision.TryGetComponent(out Item item))
+            {
+                Raised.Invoke(item);
+            }
+        }
+
+        private Vector2 GetVerticalDirection()
+        {
+            float currentHigth = transform.position.y;
+            Vector2 verticalDirection;
+
+            if (IsGround)
+            {
+                verticalDirection = Vector2.zero;
+            }
+            else
+            {
+                bool isMovingUp = _lastHigth < transform.position.y;
+                verticalDirection = isMovingUp ? Vector2.up : Vector2.down;
             }
 
-            item.Pickup();
+            _lastHigth = currentHigth;
+            return verticalDirection;
+        }
+
+        private bool HaveGround()
+        {
+            int hitCount = Physics2D.Raycast(transform.position, Vector2.down, _filter, _hits, _raycastDistanse);
+            return hitCount > 0;
         }
     }
 }

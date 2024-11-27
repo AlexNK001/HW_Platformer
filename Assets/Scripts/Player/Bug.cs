@@ -1,17 +1,35 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System;
 
-public class Bug : MonoBehaviour
+namespace Player
 {
-    private List<Coin> _coins;
-
-    private void Start()
+    internal class Bug : MonoBehaviour
     {
-        _coins = new List<Coin>();
-    }
+        [SerializeField] private int _coinAmount;
 
-    public void AddCoin(Coin coin)
-    {
-        _coins.Add(coin);
+        private PlayerPhysic _playerPhysics;
+
+        internal event Action<int> CoinAmountChanged;
+
+        private void OnDestroy()
+        {
+            _playerPhysics.Raised -= AddCoin;
+        }
+
+        internal void Initilization(PlayerPhysic playerPhysic, int coinAmount)
+        {
+            _coinAmount = coinAmount;
+            _playerPhysics = playerPhysic;
+            _playerPhysics.Raised += AddCoin;
+        }
+
+        private void AddCoin(Item item)
+        {
+            if (item is Coin coin)
+            {
+                CoinAmountChanged?.Invoke(++_coinAmount);
+                coin.Pickup();
+            }
+        }
     }
 }

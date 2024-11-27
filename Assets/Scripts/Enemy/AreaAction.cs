@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Player;
 
 [RequireComponent(typeof(Collider2D))]
 public class AreaAction : MonoBehaviour
@@ -8,16 +9,16 @@ public class AreaAction : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.transform.TryGetComponent(out PlayerPhysic physicCharacter))
+        if (collision.transform.TryGetComponent(out PlayerHeart heart))
         {
             HaveCharacter = true;
-            Target = physicCharacter.transform;
+            Target = heart.transform;
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.transform.TryGetComponent<PlayerPhysic>(out _))
+        if (collision.transform.TryGetComponent(out PlayerHeart _))
         {
             HaveCharacter = false;
         }

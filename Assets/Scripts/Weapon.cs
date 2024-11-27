@@ -11,6 +11,12 @@ public class Weapon : MonoBehaviour
         if (collision.TryGetComponent(out Heart attacked))
         {
             attacked.TakeDamage(_damage);
+            _damageCollider.enabled = false;
         }
+    }
+
+    public void SetActiveCollider(bool isAtack)
+    {
+        _damageCollider.enabled = isAtack;
     }
 }

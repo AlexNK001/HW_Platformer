@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ItemSpawner : MonoBehaviour
 {
@@ -9,7 +9,7 @@ public class ItemSpawner : MonoBehaviour
     {
         for (int i = 0; i < _points.Length; i++)
         {
-            Instantiate(_prefab, _points[i].transform.position, Quaternion.identity);
+            Instantiate(_prefab, _points[i].transform.position, Quaternion.identity,transform);
         }
     }
 }
