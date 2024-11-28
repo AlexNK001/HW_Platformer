@@ -8,6 +8,7 @@ namespace Player
         [SerializeField] private Weapon _weapon;
         [SerializeField] private AnimationClip _attackClip;
         [SerializeField, Min(0f)] private float _weaponActivationTime;
+        [SerializeField] private Vampirism _vampirism;
 
         private UserInput _userInput;
         private WaitForSeconds _weaponActivationDelay;
@@ -27,6 +28,8 @@ namespace Player
             _weapon.SetActiveCollider(false);
             _weaponActivationDelay = new WaitForSeconds(_weaponActivationTime);
             _attackDuration = new WaitForSeconds(_attackClip.length - _weaponActivationTime);
+
+            _vampirism.Initilization(userInput);
         }
 
         private void TryAttack()

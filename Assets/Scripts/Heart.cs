@@ -9,6 +9,8 @@ public class Heart : MonoBehaviour
     public Action<float> HealthChanged;
     public Action Died;
 
+    public bool IsAlive => CurrentHealth > 0f;
+
     public virtual void Initilization(float maxHealt, float currentHealt)
     {
         MaxHealth = maxHealt;
@@ -20,7 +22,7 @@ public class Heart : MonoBehaviour
         CurrentHealth -= damage;
         HealthChanged?.Invoke(CurrentHealth);
 
-        if(CurrentHealth < 0)
+        if (CurrentHealth < 0)
         {
             Died.Invoke();
         }

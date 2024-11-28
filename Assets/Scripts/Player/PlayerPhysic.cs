@@ -10,6 +10,7 @@ namespace Player
         [SerializeField, Min(0f)] private float _raycastDistanse = 0.2f;
         [SerializeField] private CapsuleCollider2D _mainCollider;
 
+        private UserInput _userInput;
         private RaycastHit2D[] _hits;
         private float _lastHigth;
         private Vector2 _currentVerticalDirection;
@@ -20,34 +21,14 @@ namespace Player
         internal event Action<Item> Raised;
         internal event Action<Vector2> VerticalDirectionChanged;
 
-        private void Start()
+        private void JumpOffPlatform()
         {
-            _hits = new RaycastHit2D[10];
-            _lastHigth = transform.position.y;
-            _currentVerticalDirection = Vector2.zero;
+            RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down);
 
-            _delayDisablePlatform = new WaitForSeconds(Mathf.Sqrt(_mainCollider.size.y * 2 / Mathf.Abs(Physics.gravity.y)));
-        }
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.S))
+            if (hit.transform.TryGetComponent(out PlatformEffector2D platform))
             {
-                RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down);
-
-                if (hit.transform.TryGetComponent(out PlatformEffector2D platform))
-                {
-                    StartCoroutine(TemporarilyDisablePlatform(platform));
-                }
+                StartCoroutine(TemporarilyDisablePlatform(platform));
             }
-        }
-
-        private IEnumerator TemporarilyDisablePlatform(PlatformEffector2D platform)
-        {
-            float currentRotationalOffset = platform.rotationalOffset;
-            platform.rotationalOffset += 180;
-            yield return _delayDisablePlatform;
-            platform.rotationalOffset = currentRotationalOffset;
         }
 
         private void FixedUpdate()
@@ -70,6 +51,31 @@ namespace Player
             {
                 Raised.Invoke(item);
             }
+        }
+
+        private void OnDestroy()
+        {
+            _userInput.MovingDown -= JumpOffPlatform;
+        }
+
+        internal void Initilization(UserInput userInput)
+        {
+            _userInput = userInput;
+            _userInput.MovingDown += JumpOffPlatform;
+
+            _hits = new RaycastHit2D[10];
+            _lastHigth = transform.position.y;
+            _currentVerticalDirection = Vector2.zero;
+
+            _delayDisablePlatform = new WaitForSeconds(Mathf.Sqrt(_mainCollider.size.y * 2 / Mathf.Abs(Physics.gravity.y)));
+        }
+
+        private IEnumerator TemporarilyDisablePlatform(PlatformEffector2D platform)
+        {
+            float currentRotationalOffset = platform.rotationalOffset;
+            platform.rotationalOffset += 180;
+            yield return _delayDisablePlatform;
+            platform.rotationalOffset = currentRotationalOffset;
         }
 
         private Vector2 GetVerticalDirection()

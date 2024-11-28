@@ -14,6 +14,7 @@ namespace Player
         private int _currenVerticaltAnimation;
         private int _currentMoveAnimation;
         private Heart _heart;
+        private float _currentHealth;
 
         private void OnDestroy()
         {
@@ -25,7 +26,7 @@ namespace Player
             _playerPhysic.VerticalDirectionChanged -= ChooseVertivalAnimation;
         }
 
-        internal void Initilization(UserInput userInput, PlayerPhysic playerPhysic, Heart heart)
+        internal void Initilization(UserInput userInput, PlayerPhysic playerPhysic, Heart heart, float currentHealth)
         {
             _userInput = userInput;
 
@@ -48,6 +49,7 @@ namespace Player
 
             _heart = heart;
             _heart.HealthChanged += ChangeHairColor;
+            _currentHealth = currentHealth;
         }
 
         private void ChangeMoveAnimation(bool isRun)
@@ -63,7 +65,10 @@ namespace Player
 
         private void ChangeHairColor(float currentHealtValue)
         {
-            _animator.SetTrigger(AnimationCommand.ChangeColor);
+            if (currentHealtValue < _currentHealth)
+                _animator.SetTrigger(AnimationCommand.ChangeColor);
+
+            _currentHealth = currentHealtValue;
         }
 
         private void ChangeDirectionLook(float horizontalAxisValue)

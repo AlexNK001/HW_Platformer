@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
 namespace Player
@@ -10,6 +9,8 @@ namespace Player
         private const KeyCode Jump = KeyCode.Space;
         private const KeyCode Attack = KeyCode.O;
         private const KeyCode Run = KeyCode.LeftShift;
+        private const KeyCode MoveDown = KeyCode.S;
+        private const KeyCode Vampiric = KeyCode.Z;
 
         private PlayerPhysic _playerPhysic;
         private PlayerBatlleHandler _playerBatlleHandler;
@@ -18,6 +19,8 @@ namespace Player
         internal event UnityAction Jumped;
         internal event UnityAction Attacked;
         internal event UnityAction<bool> Runed;
+        internal event UnityAction MovingDown;
+        internal event UnityAction SpellCast;
 
         private void Update()
         {
@@ -27,6 +30,12 @@ namespace Player
 
                 if (Input.GetKeyDown(Attack))
                     Attacked.Invoke();
+
+                if (Input.GetKeyDown(MoveDown))
+                    MovingDown.Invoke();
+
+                if (Input.GetKeyDown(Vampiric))
+                    SpellCast.Invoke();
 
                 if (Input.GetKeyDown(Jump) && _playerPhysic.IsGround)
                     Jumped.Invoke();

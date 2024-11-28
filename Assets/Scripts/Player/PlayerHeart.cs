@@ -16,6 +16,12 @@ namespace Player
             }
         }
 
+        public void Heal(float healPower)
+        {
+            CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + healPower);
+            HealthChanged.Invoke(CurrentHealth);
+        }
+
         internal void Initilization(PlayerPhysic playerPhysic, float maxHealt, float currentHealt)
         {
             base.Initilization(maxHealt, currentHealt);

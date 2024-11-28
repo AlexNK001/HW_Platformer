@@ -19,8 +19,9 @@ namespace Player
         private void Start()
         {
             _userInput.Initilization(_playerPhysic, _playerBattleHandler);
+            _playerPhysic.Initilization(_userInput);
             _playerHeart.Initilization(_playerPhysic, _maxHealth, _currentHealth);
-            _playerAnimator.Initilization(_userInput, _playerPhysic,_playerHeart);
+            _playerAnimator.Initilization(_userInput, _playerPhysic, _playerHeart, _currentHealth);
             _mover.Initilization(_userInput);
             _bug.Initilization(_playerPhysic, _coinAmount);
             _playerBattleHandler.Initilization(_userInput);
