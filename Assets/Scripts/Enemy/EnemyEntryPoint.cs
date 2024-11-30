@@ -16,6 +16,7 @@ namespace Enemy
         [SerializeField] private Collider2D _deathCollider;
         [SerializeField] private WaypointTarget _waypointTarget;
         [SerializeField] private PatrolState _patrol;
+        [SerializeField] private Follower _follower;
 
         private EnemySpawner _enemySpawner;
 
@@ -37,7 +38,7 @@ namespace Enemy
         internal void Initilization(EnemySpawner enemySpawner)
         {
             _enemySpawner = enemySpawner;
-            _waypointTarget.transform.SetParent(_enemySpawner.transform);
+            _follower.transform.SetParent(_enemySpawner.HealthBarParent);
         }
 
         private void Die()

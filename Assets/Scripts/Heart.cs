@@ -24,7 +24,7 @@ public class Heart : MonoBehaviour
 
         if (CurrentHealth < 0)
         {
-            Died.Invoke();
+            Died?.Invoke();
         }
     }
 }

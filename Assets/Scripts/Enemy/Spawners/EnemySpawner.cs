@@ -9,8 +9,12 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private int _defaultCapacity = 5;
     [SerializeField] private int _maxSize = 100;
     [SerializeField] private EnemySpawnPoint[] _spawnPoints;
+    [SerializeField] private Transform _waypointParent;
+    [SerializeField] private Transform _healthBarParent;
 
     private ObjectPool<EnemyEntryPoint> _enemies;
+
+    public Transform HealthBarParent => _healthBarParent;
 
     private void Start()
     {
